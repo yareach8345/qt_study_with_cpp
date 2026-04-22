@@ -13,7 +13,11 @@ find_package(Qt6 COMPONENTS
         Widgets
         REQUIRED)
 
-add_executable(cpp_qt_study main.cpp)
+add_executable(cpp_qt_study
+        main.cpp
+        resources.qrc
+)
+
 target_link_libraries(cpp_qt_study
         Qt::Core
         Qt::Gui
