@@ -14,8 +14,10 @@ find_package(Qt6 COMPONENTS
         REQUIRED)
 
 add_executable(cpp_qt_study
-        main.cpp
+        src/main.cpp
         resources.qrc
+        src/widgets/HoverDetectableButton.cpp
+        src/widgets/HoverDetectableButton.h
 )
 
 target_link_libraries(cpp_qt_study
