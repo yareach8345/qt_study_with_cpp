@@ -16,8 +16,8 @@ find_package(Qt6 COMPONENTS
 add_executable(cpp_qt_study
         src/main.cpp
         resources.qrc
-        src/widgets/HoverDetectableButton.cpp
-        src/widgets/HoverDetectableButton.h
+        src/widgets/RoundButton.cpp
+        src/widgets/RoundButton.h
 )
 
 target_link_libraries(cpp_qt_study

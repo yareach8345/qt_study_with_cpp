@@ -1,7 +1,9 @@
 #include <QtWidgets/QApplication>
+#include <QtWidgets/QMainWindow>
+#include <QtWidgets/QStatusBar>
 #include <QDirIterator>
 
-#include "widgets/HoverDetectableButton.h"
+#include "widgets/RoundButton.h"
 
 int main(int argc, char* argv[]) {
     QApplication a(argc, argv);
@@ -11,12 +13,19 @@ int main(int argc, char* argv[]) {
         throw std::runtime_error("icon is null");
     }
 
-    QWidget w;
+    QMainWindow w;
     w.setToolTip("This is a <h1>tool tip</h1> of widget");
 
-    auto btn = HoverDetectableButton("Quit", &w);
+    auto btn = RoundButton("Quit", &w);
     QObject::connect(&btn, &QPushButton::clicked, [] () {
         QApplication::quit();
+    });
+
+    QStatusBar *statusBar = w.statusBar();
+
+    QObject::connect(&btn, &RoundButton::moved, [&statusBar](const unsigned int step) {
+        qDebug() << step;
+        statusBar->showMessage(QString("step %1").arg(step));
     });
 
     btn.setToolTip("This is a <b>TOOL TIP!</b>");
