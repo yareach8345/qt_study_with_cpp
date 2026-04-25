@@ -2,6 +2,7 @@
 #include <QtWidgets/QMainWindow>
 #include <QtWidgets/QStatusBar>
 #include <QDirIterator>
+#include <QMenuBar>
 
 #include "widgets/RoundButton.h"
 
@@ -29,6 +30,15 @@ int main(int argc, char* argv[]) {
     });
 
     btn.setToolTip("This is a <b>TOOL TIP!</b>");
+
+    auto exit_action = std::make_unique<QAction>("Exit");
+    exit_action->setShortcut(QKeySequence("Ctrl+Q"));
+    exit_action->setStatusTip("Exit Application");
+    QObject::connect(exit_action.get(), &QAction::triggered, QApplication::quit);
+
+    auto menu_bar = w.menuBar();
+    QMenu *menu = menu_bar->addMenu("menu");
+    menu->addAction(exit_action.get());
 
     w.setWindowTitle("Hello, Qt6!");
     w.setGeometry(300, 300, 400, 400);
