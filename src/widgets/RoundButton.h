@@ -12,10 +12,17 @@ class RoundButton: public QPushButton {
     Q_OBJECT
 private:
     unsigned int rotationSteps;
+    bool movable;
 public:
     using QPushButton::QPushButton;
 
     explicit RoundButton(const QString &text, QWidget *parent);
+
+    bool toggle_movable();
+
+    bool set_movable(bool movable);
+
+    bool get_movable() const;
 
 protected:
     void enterEvent(QEnterEvent *event) override;

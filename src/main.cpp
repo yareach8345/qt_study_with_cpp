@@ -31,14 +31,29 @@ int main(int argc, char* argv[]) {
 
     btn.setToolTip("This is a <b>TOOL TIP!</b>");
 
-    auto exit_action = std::make_unique<QAction>("Exit");
+    // exit action
+    const auto exit_action = std::make_unique<QAction>("Exit");
     exit_action->setShortcut(QKeySequence("Ctrl+Q"));
     exit_action->setStatusTip("Exit Application");
     QObject::connect(exit_action.get(), &QAction::triggered, QApplication::quit);
 
-    auto menu_bar = w.menuBar();
+    // toggle movable action
+    const auto toggle_movable = std::make_unique<QAction>("Toggle movable");
+    toggle_movable->setShortcut(QKeySequence("Ctrl+M"));
+    toggle_movable->setStatusTip("Toggle movable");
+    QObject::connect(toggle_movable.get(), &QAction::triggered, [&btn, &statusBar] {
+        const bool new_value = btn.toggle_movable();
+        const auto event_message = QString("movable is changed to %1").arg(new_value ? "true" : "false");
+        qDebug() << event_message;
+        statusBar->showMessage(event_message, 5000);
+    });
+
+    // menu bar
+    const auto menu_bar = w.menuBar();
     QMenu *menu = menu_bar->addMenu("menu");
     menu->addAction(exit_action.get());
+    menu->addSeparator();
+    menu->addAction(toggle_movable.get());
 
     w.setWindowTitle("Hello, Qt6!");
     w.setGeometry(300, 300, 400, 400);
