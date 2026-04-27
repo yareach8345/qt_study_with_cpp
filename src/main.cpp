@@ -71,9 +71,18 @@ int main(int argc, char* argv[]) {
     w.addToolBar(Qt::LeftToolBarArea, toolBar.get());
 
     w.setWindowTitle("Hello, Qt6!");
-    w.setGeometry(300, 300, 400, 400);
+    w.setGeometry(600, 600, 400, 400);
     w.setWindowIcon(icon);
     w.show();
+
+    auto srcRect = QGuiApplication::primaryScreen()->availableGeometry();
+    auto center = w.geometry();
+    printf("%d %d\n", center.center().x(), center.center().y());
+    center.moveCenter(srcRect.center());
+    printf("%d %d\n", center.center().x(), center.center().y());
+    w.setGeometry(center);
+    printf("%d %d\n", srcRect.width(), srcRect.height());
+    printf("%d %d\n", srcRect.center().x(), srcRect.center().y());
 
     return QApplication::exec();
 }
