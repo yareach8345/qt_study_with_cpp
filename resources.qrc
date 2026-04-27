@@ -2,5 +2,8 @@
 <RCC version="1.0">
     <qresource>
         <file>images/profile.jpg</file>
+        <file>images/circle.png</file>
+        <file>images/exit.png</file>
+        <file>images/x.png</file>
     </qresource>
 </RCC>
