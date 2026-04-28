@@ -5,6 +5,11 @@
 #include <QMenuBar>
 #include <QToolBar>
 #include <QtGui/QScreen>
+#include <QtCore/QDate>
+#include <QtCore/QTime>
+#include <QtCore/QDateTime>
+
+#include <iostream>
 
 #include "widgets/RoundButton.h"
 
@@ -77,12 +82,21 @@ int main(int argc, char* argv[]) {
 
     auto srcRect = QGuiApplication::primaryScreen()->availableGeometry();
     auto center = w.geometry();
-    printf("%d %d\n", center.center().x(), center.center().y());
     center.moveCenter(srcRect.center());
-    printf("%d %d\n", center.center().x(), center.center().y());
     w.setGeometry(center);
-    printf("%d %d\n", srcRect.width(), srcRect.height());
-    printf("%d %d\n", srcRect.center().x(), srcRect.center().y());
+
+    // print current time (3-9)
+    const QDate date = QDate::currentDate();
+    const QTime time = QTime::currentTime();
+    const QDateTime datetime = QDateTime::currentDateTime();
+
+    std::cout << date.toString(Qt::ISODate).toStdString() << std::endl;
+    std::cout << time.toString(Qt::ISODate).toStdString() << std::endl;
+    std::cout << datetime.toString(Qt::ISODate).toStdString() << std::endl;
+
+    std::cout << date.toString("yyyy-MM-dd dddd").toStdString() << std::endl;
+    std::cout <<time.toString("hh:mm:ss").toStdString() << std::endl;
+    std::cout <<datetime.toString("yyyy-MM-dd ddd hh:mm:ss").toStdString() << std::endl;
 
     return QApplication::exec();
 }
