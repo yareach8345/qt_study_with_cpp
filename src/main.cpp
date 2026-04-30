@@ -1,5 +1,4 @@
 #include <QtWidgets/QApplication>
-#include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QLabel>
 
 int main(int argc, char* argv[]) {
@@ -7,11 +6,8 @@ int main(int argc, char* argv[]) {
 
     QWidget w;
     w.setToolTip("This is a <h1>tool tip</h1> of widget");
-    // style
-    QVBoxLayout layout;
-    w.setLayout(&layout);
 
-    QLabel red("Red");
+    QLabel red("Red", &w);
     red.setStyleSheet(
         "color: red;"
         "border-style: solid;"
@@ -19,16 +15,16 @@ int main(int argc, char* argv[]) {
         "border-color: #FA8072;"
         "border-radius: 3px;"
     );
-    layout.addWidget(&red);
+    red.setGeometry(100, 100, 100, 40);
 
-    QLabel green("Green");
+    QLabel green("Green", &w);
     green.setStyleSheet(
         "color: green;"
         "background-color: #7FFFD4;"
     );
-    layout.addWidget(&green);
+    green.setGeometry(100, 150, 100, 40);
 
-    QLabel blue("Blue");
+    QLabel blue("Blue", &w);
     blue.setStyleSheet(
         "color: blue;"
         "background-color: #87CEFA;"
@@ -37,7 +33,7 @@ int main(int argc, char* argv[]) {
         "border-color: #FA8072;"
         "border-radius: 10px;"
     );
-    layout.addWidget(&blue);
+    blue.setGeometry(100, 200, 100, 40);
 
     w.resize(500 , 500);
     w.show();
