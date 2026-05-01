@@ -1,39 +1,31 @@
 #include <QtWidgets/QApplication>
-#include <QtWidgets/QLabel>
+#include <QtWidgets/QWidget>
+#include <QtWidgets/QHBoxLayout>
+#include <QtWidgets/QVBoxLayout>
+#include <QtWidgets/QPushButton>
 
 int main(int argc, char* argv[]) {
     QApplication a(argc, argv);
 
     QWidget w;
-    w.setToolTip("This is a <h1>tool tip</h1> of widget");
 
-    QLabel red("Red", &w);
-    red.setStyleSheet(
-        "color: red;"
-        "border-style: solid;"
-        "border-width: 2px;"
-        "border-color: #FA8072;"
-        "border-radius: 3px;"
-    );
-    red.setGeometry(100, 100, 100, 40);
+    QVBoxLayout vbox;
+    QHBoxLayout hbox;
 
-    QLabel green("Green", &w);
-    green.setStyleSheet(
-        "color: green;"
-        "background-color: #7FFFD4;"
-    );
-    green.setGeometry(100, 150, 100, 40);
+    QPushButton ok_btn("ok");
+    ok_btn.setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+    QPushButton cancel_btn("cancel");
+    cancel_btn.setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
 
-    QLabel blue("Blue", &w);
-    blue.setStyleSheet(
-        "color: blue;"
-        "background-color: #87CEFA;"
-        "border-style: solid;"
-        "border-width: 10px;"
-        "border-color: #FA8072;"
-        "border-radius: 10px;"
-    );
-    blue.setGeometry(100, 200, 100, 40);
+    w.setLayout(&vbox);
+    vbox.addStretch(2);
+    vbox.addLayout(&hbox, 1);
+    vbox.addStretch(1);
+
+    hbox.addStretch(1);
+    hbox.addWidget(&ok_btn, 1);
+    hbox.addWidget(&cancel_btn, 2);
+    hbox.addStretch(1);
 
     w.resize(500 , 500);
     w.show();
