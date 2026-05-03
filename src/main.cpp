@@ -1,40 +1,38 @@
 #include <QtWidgets/QApplication>
-#include <QtWidgets/QHBoxLayout>
 #include <QtWidgets/QLabel>
-#include <QtWidgets/QLineEdit>
-#include <QtWidgets/QTextEdit>
 #include <QtWidgets/QPushButton>
-#include <QtWidgets/QMessageBox>
 
 int main(int argc, char* argv[]) {
     QApplication a(argc, argv);
 
     QWidget w;
-    QVBoxLayout layout;
-    w.setLayout(&layout);
 
-    QVBoxLayout toggle_buttons_layout;
-    layout.addLayout(&toggle_buttons_layout);
-    for (int i = 0; i < 2; i++) {
-        auto button = new QPushButton();
-        button->setText("OFF");
-        button->setCheckable(true);
-        button->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+    auto *lb1 = new QLabel("Label One", &w);
+    auto *lb2 = new QLabel("Label Two", &w);
+    auto *lb3 = new QLabel("Label Three", &w);
+    auto *lb4 = new QLabel("Label Fore", &w);
 
-        QObject::connect(button, &QPushButton::clicked, [button] { button->setText(button->isChecked() ? "ON" : "OFF"); });
-        toggle_buttons_layout.addWidget(button);
-    }
+    lb1->setGeometry(0, 0, 300, 100);
+    lb1->setStyleSheet("background: red");
 
-    QVBoxLayout buttons_layout;
-    layout.addLayout(&buttons_layout);
-    for (int i = 0; i < 2; i++) {
-        auto button = new QPushButton();
-        button->setText(QString("Send %1").arg(i));
-        button->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+    lb2->setGeometry(0, 100, 300, 100);
+    lb2->setStyleSheet("background: green");
+    lb2->setAlignment(Qt::AlignmentFlag::AlignCenter);
 
-        QObject::connect(button, &QPushButton::clicked, [button] { qDebug() << button->text() << " click"; });
-        buttons_layout.addWidget(button);
-    }
+    lb3->setGeometry(0, 200, 300, 100);
+    lb3->setStyleSheet("background: blue");
+    lb3->setFont(QFont("", 20));
+    lb3->setAlignment(Qt::AlignmentFlag::AlignRight | Qt::AlignmentFlag::AlignVCenter);
+
+    QPixmap image(":images/profile");
+    image = image.scaled(200, 200, Qt::AspectRatioMode::KeepAspectRatio);
+    lb4->setPixmap(image);
+    lb4->move(0, 300);
+    lb4->setStyleSheet(
+        "border-style: solid;"
+        "border-width: 2;"
+        "border-color: red;"
+    );
 
     w.resize(500 , 500);
     w.show();
