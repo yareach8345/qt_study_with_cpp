@@ -1,6 +1,7 @@
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QHBoxLayout>
 #include <QtWidgets/QCheckBox>
+#include <QtWidgets/QComboBox>
 #include <QtWidgets/QRadioButton>
 #include <QtWidgets/QSlider>
 #include <QtWidgets/QButtonGroup>
@@ -14,23 +15,17 @@ int main(int argc, char* argv[]) {
 
     QString rgb_string("#000000");
 
-    QHBoxLayout rgb_layout;
-    v_layout.addLayout(&rgb_layout);
+    QComboBox rgb_combo_box;
+    v_layout.addWidget(&rgb_combo_box);
 
-    QButtonGroup rgb_group;
-    rgb_group.setExclusive(false);
-    // r
-    QCheckBox r_check_box("r");
-    rgb_layout.addWidget(&r_check_box);
-    rgb_group.addButton(&r_check_box);
-    // g
-    QCheckBox g_check_box("g");
-    rgb_layout.addWidget(&g_check_box);
-    rgb_group.addButton(&g_check_box);
-    // b
-    QCheckBox b_check_box("b");
-    rgb_layout.addWidget(&b_check_box);
-    rgb_group.addButton(&b_check_box);
+    rgb_combo_box.addItem("Black(#000000)");
+    rgb_combo_box.addItem("Red(#ff0000)");
+    rgb_combo_box.addItem("Green(#00ff00)");
+    rgb_combo_box.addItem("Blue(#0000ff)");
+    rgb_combo_box.addItem("Yellow(#ffff00)");
+    rgb_combo_box.addItem("Magenta(#ff00ff)");
+    rgb_combo_box.addItem("Cyan(#00ffff)");
+    rgb_combo_box.addItem("White(#ffffff)");
 
     QHBoxLayout text_h_align_layout;
     v_layout.addLayout(&text_h_align_layout);
@@ -86,20 +81,12 @@ int main(int argc, char* argv[]) {
         label.setAlignment(v_align_flag | h_align_flag);
     };
 
-    QObject::connect(&rgb_group, &QButtonGroup::buttonToggled, [&](const QAbstractButton* btn, auto checked) {
-        std::size_t start_index;
-        if (&r_check_box == btn) {
-            start_index = 1;
-        } else if (&g_check_box == btn) {
-            start_index = 3;
-        } else if (&b_check_box == btn) {
-            start_index = 5;
-        } else {
-            throw std::runtime_error("Unknown CheckBox is changed");
-        }
-        const char new_value = checked ? 'f' : '0';
-        rgb_string[start_index] = new_value;
-        rgb_string[start_index + 1] = new_value;
+    QObject::connect(&rgb_combo_box, &QComboBox::currentTextChanged, [&](const QString& text) {
+        const qsizetype start_index = text.indexOf('(') + 1;
+        const qsizetype end_index = text.indexOf(')') - 1;
+        const QString new_value = text.sliced(start_index, end_index - start_index + 1);
+
+        rgb_string = new_value;
 
         update_label_style();
         label.setText(QString("rgb %1").arg(rgb_string));
