@@ -1,33 +1,53 @@
 #include <QtWidgets/QApplication>
+#include <QtWidgets/QProgressBar>
 #include <QtWidgets/QLabel>
-#include <QtWidgets/QLineEdit>
+#include <QtCore/QTimer>
 #include <QtWidgets/QGridLayout>
-#include <functional>
+
+#include "widgets/CustomProgressBar.h"
 
 int main(int argc, char* argv[]) {
-    std::hash<QString> hash;
-
     QApplication a(argc, argv);
 
     QWidget w;
+    QVBoxLayout layout(&w);
 
-    QGridLayout layout(&w);
+    QProgressBar pb1;
+    QProgressBar pb2;
+    QProgressBar pb3;
+    QLabel lb("...");
 
-    QLineEdit input;
-    QLabel hashed_value_label;
+    layout.addWidget(&pb1);
+    layout.addWidget(&pb2);
+    layout.addWidget(&pb3);
+    layout.addWidget(&lb);
+    layout.addStretch(1);
 
-    layout.addWidget(new QLabel("input"), 0, 0);
-    layout.addWidget(&input, 0, 1);
-    layout.addWidget(new QLabel("hashed"), 1, 0);
-    layout.addWidget(&hashed_value_label, 1, 1);
+    pb1.setMinimum(0);
+    pb1.setMaximum(0);
 
-    QObject::connect(&input, &QLineEdit::textChanged, [&](const QString &new_text) {
-        const std::size_t hashed = hash(new_text);
-        hashed_value_label.setText(QString::number(hashed));
-    });
+    pb2.setValue(50);
 
-    w.resize(500, 40);
+    pb3.setOrientation(Qt::Orientation::Vertical);
+
+    QTimer timer;
+    timer.start(100);
+
+    CustomProgressBar cp({ 40, 60 });
+    layout.addWidget(&cp);
+
+    w.resize(400, 500);
     w.show();
+
+    QObject::connect(&timer, &QTimer::timeout, [&]() {
+        const int current_pb3_value = pb3.value();
+        pb3.setValue(current_pb3_value + 1);
+        cp.setValue(current_pb3_value);
+        if (current_pb3_value == 100) {
+            timer.stop();
+            lb.setText("Finished...");
+        }
+    });
 
     return QApplication::exec();
 }

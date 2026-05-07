@@ -18,6 +18,9 @@ add_executable(cpp_qt_study
         resources.qrc
         src/widgets/RoundButton.cpp
         src/widgets/RoundButton.h
+        src/widgets/CustomProgressBar.cpp
+        src/widgets/CustomProgressBar.h
+        src/data/Range.h
 )
 
 target_link_libraries(cpp_qt_study
