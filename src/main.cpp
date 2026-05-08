@@ -1,84 +1,65 @@
 #include <QtWidgets/QApplication>
-#include <QtWidgets/QLabel>
 #include <QtWidgets/QSlider>
-#include <QtWidgets/QDial>
-#include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QHBoxLayout>
-
-#include "widgets/CustomProgressBar.h"
+#include <QtWidgets/QSplitter>
+#include "widgets/CustomLabel.h"
 
 int main(int argc, char* argv[]) {
     QApplication a(argc, argv);
 
     QWidget w;
-    QVBoxLayout vbox(&w);
 
-    std::vector<QSlider*> sbs;
+    QVBoxLayout v_layout(&w);
 
-    QSlider sb1(Qt::Orientation::Horizontal);
-    QSlider sb2(Qt::Orientation::Horizontal);
-    QSlider sb3(Qt::Orientation::Horizontal);
-    QSlider sb4;
+    QSplitter splitter;
+    splitter.setFixedWidth(255);
+    v_layout.addWidget(&splitter);
 
-    QDial dial;
+    CustomLabel r_label("r");
+    r_label.setStyleSheet("background-color: red;");
 
-    sbs.push_back(&sb1);
-    sbs.push_back(&sb2);
-    sbs.push_back(&sb3);
-    sbs.push_back(&sb4);
+    CustomLabel g_label("g");
+    g_label.setStyleSheet("background-color: green;");
 
-    vbox.addWidget(&sb1);
-    sb1.setRange(0, 100);
+    CustomLabel b_label("b");
+    b_label.setStyleSheet("background-color: blue;");
 
-    vbox.addWidget(&sb2);
-    sb2.setTickPosition(QSlider::TickPosition::TicksAbove);
+    splitter.addWidget(&r_label);
+    splitter.addWidget(&g_label);
+    splitter.addWidget(&b_label);
 
-    vbox.addWidget(&sb3);
-    sb3.setTickPosition(QSlider::TickPosition::TicksBelow);
-    sb3.setTickInterval(10);
+    QLabel label("#000000");
+    v_layout.addWidget(&label);
 
-    vbox.addWidget(&sb4);
-    sb4.setTickPosition(QSlider::TickPosition::TicksRight);
-    sb4.setTickInterval(20);
+    auto update_label_color = [&]() {
+        const int r = r_label.width();
+        const int g = g_label.width();
+        const int b = b_label.width();
 
-    vbox.addWidget(&dial);
-    dial.setRange(0, 100);
+        const auto rgb_string = QString("background-color: #%1%2%3;")
+            .arg(r, 2, 16, QChar('0'))
+            .arg(g, 2, 16, QChar('0'))
+            .arg(b, 2, 16, QChar('0'));
 
-    QHBoxLayout hbox;
-    vbox.addLayout(&hbox);
-
-    hbox.addWidget(new QLabel("0"), 1);
-    CustomProgressBar cp({ 40, 60 });
-    hbox.addWidget(&cp, 20);
-    hbox.addWidget(new QLabel("100"), 1);
-
-    for (QSlider* slider: sbs) { slider->setValue(50); }
-
-    auto slider_update = [&sbs, &dial, &cp](const int value) {
-        for (QSlider* slider : sbs) {
-            slider->setValue(value);
-        }
-        dial.setValue(value);
-        cp.setValue(value);
+        qDebug() << r << g << b << rgb_string;
+        label.setStyleSheet(rgb_string);
+        label.setText(rgb_string);
     };
 
-    for (const QSlider* slider: sbs) {
-        QObject::connect(slider, &QSlider::valueChanged, slider_update);
-    }
-    QObject::connect(&dial, &QSlider::valueChanged, slider_update);
+    QObject::connect(&r_label, &CustomLabel::resized, [&](const int width){
+        update_label_color();
+    });
 
-    w.resize(400, 500);
+    QObject::connect(&g_label, &CustomLabel::resized, [&](const int width){
+        update_label_color();
+    });
+
+    QObject::connect(&b_label, &CustomLabel::resized, [&](const int width){
+        update_label_color();
+    });
+
+    w.setWindowTitle("Window");
     w.show();
-
-    // QObject::connect(&timer, &QTimer::timeout, [&]() {
-    //     const int current_pb3_value = pb3.value();
-    //     pb3.setValue(current_pb3_value + 1);
-    //     cp.setValue(current_pb3_value);
-    //     if (current_pb3_value == 100) {
-    //         timer.stop();
-    //         lb.setText("Finished...");
-    //     }
-    // });
 
     return QApplication::exec();
 }

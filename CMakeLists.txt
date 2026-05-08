@@ -21,6 +21,8 @@ add_executable(cpp_qt_study
         src/widgets/CustomProgressBar.cpp
         src/widgets/CustomProgressBar.h
         src/data/Range.h
+        src/widgets/CustomLabel.cpp
+        src/widgets/CustomLabel.h
 )
 
 target_link_libraries(cpp_qt_study
