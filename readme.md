@@ -7,3 +7,4 @@
 ## 참고자료
 ### Wikidocs
 * https://wikidocs.net/book/8326
+* https://wikidocs.net/book/2165 (py)

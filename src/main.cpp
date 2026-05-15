@@ -1,16 +1,8 @@
 #include <QtWidgets/QApplication>
-#include <QtWidgets/QWidget>
-#include <QtWidgets/QDoubleSpinBox>
+#include <QtWidgets/QDateEdit>
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QVBoxLayout>
-
-QDoubleSpinBox* gen_spin_box() {
-    const auto spin_box = new QDoubleSpinBox();
-    spin_box->setRange(0, 10);
-    spin_box->setSingleStep(0.1);
-    spin_box->setValue(5);
-    return spin_box;
-}
+#include <QtCore/QDate>
 
 int main(int argc, char* argv[]) {
     QApplication a(argc, argv);
@@ -19,25 +11,17 @@ int main(int argc, char* argv[]) {
 
     QVBoxLayout layout(&w);
 
-    const auto first_spinbox = gen_spin_box();
-    layout.addWidget(first_spinbox);
-    const auto second_spinbox = gen_spin_box();
-    layout.addWidget(second_spinbox);
+    layout.addWidget(new QLabel("QDateEdit"));
 
-    QLabel result_label;
-    layout.addWidget(&result_label);
-    const QString result_template = "%1 * %2 = %3";
-    auto result_label_update = [&] {
-        const double first_number = first_spinbox->value();
-        const double second_number = second_spinbox->value();
-        const double result = first_number * second_number;
-        result_label.setText(result_template.arg(first_number).arg(second_number).arg(result));
-    };
-    result_label_update();
+    QDateEdit dateEdit;
+    layout.addWidget(&dateEdit);
+    dateEdit.setDate(QDate::currentDate());
+    dateEdit.setMinimumDate(QDate(2001, 01, 01));
+    dateEdit.setMaximumDate(QDate(2099, 12, 31));
 
-    QObject::connect(first_spinbox, &QDoubleSpinBox::valueChanged, result_label_update);
-
-    QObject::connect(second_spinbox, &QDoubleSpinBox::valueChanged, result_label_update);
+    QObject::connect(&dateEdit, &QDateEdit::dateChanged, [](const QDate new_date) {
+        qDebug() << new_date.toString();
+    });
 
     w.setWindowTitle("QGugu?");
     w.setFixedSize(500, 500);
