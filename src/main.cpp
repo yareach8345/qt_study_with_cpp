@@ -1,51 +1,63 @@
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QHBoxLayout>
-#include <QtWidgets/QTextEdit>
-#include <QtWidgets/QTextBrowser>
+#include <QtWidgets/QTableWidget>
+#include <QtWidgets/QHeaderView>
 #include <QtWidgets/QPushButton>
 
-class Edit: QWidget {
-private:
-    QVBoxLayout layout;
-    QHBoxLayout input_layout;
-    QTextEdit text_edit;
-    QPushButton clear_button;
-    QTextBrowser text_browser;
-
-    void text_edit_updated() {
-        text_browser.setMarkdown(text_edit.toPlainText());
-    }
-
-    void clear_button_clicked() {
-        text_browser.clear();
-    }
-public:
-    explicit Edit(QWidget *parent) :
-        QWidget(parent) ,
-        layout(parent),
-        clear_button("clear")
-    {
-        input_layout.addWidget(&text_edit);
-        input_layout.addWidget(&text_browser);
-        layout.addLayout(&input_layout);
-        text_browser.setAcceptRichText(true);
-        text_browser.setOpenExternalLinks(true);
-        layout.addWidget(&clear_button);
-
-        QObject::connect(&clear_button , &QPushButton::clicked, [this]{ this->clear_button_clicked(); });
-        QObject::connect(&text_edit, &QTextEdit::textChanged, [this]{ text_edit_updated(); });
-    }
-};
 
 int main(int argc, char* argv[]) {
     QApplication a(argc, argv);
 
     QWidget w;
 
-    Edit edit(&w);
+    QHBoxLayout layout(&w);
 
-    w.setWindowTitle("markdown edit?");
-    w.setFixedSize(500, 500);
+    QTableWidget table;
+    layout.addWidget(&table, 2);
+
+    constexpr int row_count = 20;
+    constexpr int column_count = 4;
+
+    table.setRowCount(row_count);
+    table.setColumnCount(column_count);
+
+    // table.setEditTriggers(QAbstractItemView::NoEditTriggers);
+    table.setEditTriggers(QAbstractItemView::DoubleClicked);
+    // table.setEditTriggers(QAbstractItemView::AllEditTriggers);
+
+    // table.horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    table.horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+    table.setHorizontalHeaderLabels({"number 1", "number 2", "number 3", "number 4"});
+
+    for (int i = 0; i < row_count; i++) {
+        for (int j = 0; j < column_count; j++) {
+            table.setItem(i, j, new QTableWidgetItem(QString::number(i + 1 + j)));
+        }
+    }
+
+    QTableWidget result_table;
+    layout.addWidget(&result_table, 1);
+
+    result_table.setRowCount(row_count);
+    result_table.setColumnCount(1);
+
+    auto update_row = [&](const int row) {
+        int sum = 0;
+        for (int j = 0; j < column_count; j++) {
+            sum += table.item(row, j)->text().toInt();
+        }
+        result_table.setItem(row, 0, new QTableWidgetItem(QString::number(sum)));
+    };
+
+    for (int i = 0; i < row_count; i++) { update_row(i); }
+
+    QObject::connect(&table, &QTableWidget::itemChanged, [&](const QTableWidgetItem *i) {
+        const int updated_row = i->row();
+        update_row(updated_row);
+    });
+
+    w.setWindowTitle("markdown editor");
+    w.setMinimumSize(500, 500);
     w.show();
 
     return QApplication::exec();
