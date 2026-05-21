@@ -3,6 +3,7 @@
 #include <QtWidgets/QTableWidget>
 #include <QtWidgets/QHeaderView>
 #include <QtWidgets/QPushButton>
+#include <QtWidgets/QInputDialog>
 
 
 int main(int argc, char* argv[]) {
@@ -21,8 +22,8 @@ int main(int argc, char* argv[]) {
     table.setRowCount(row_count);
     table.setColumnCount(column_count);
 
-    // table.setEditTriggers(QAbstractItemView::NoEditTriggers);
-    table.setEditTriggers(QAbstractItemView::DoubleClicked);
+    table.setEditTriggers(QAbstractItemView::NoEditTriggers);
+    // table.setEditTriggers(QAbstractItemView::DoubleClicked);
     // table.setEditTriggers(QAbstractItemView::AllEditTriggers);
 
     // table.horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
@@ -54,6 +55,17 @@ int main(int argc, char* argv[]) {
     QObject::connect(&table, &QTableWidget::itemChanged, [&](const QTableWidgetItem *i) {
         const int updated_row = i->row();
         update_row(updated_row);
+    });
+
+    QObject::connect(&table, &QTableWidget::itemDoubleClicked, [&](QTableWidgetItem *i) {
+        const int clicked_row = i->row();
+        const int clicked_column = i->column();
+
+        const QString label = QString("%1, %2 위치의 새로운 값").arg(clicked_row).arg(clicked_column);
+
+        const int new_value = QInputDialog::getInt(&table, "input", label);
+
+        i->setText(QString::number(new_value));
     });
 
     w.setWindowTitle("markdown editor");
