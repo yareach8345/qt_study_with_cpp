@@ -23,6 +23,10 @@ add_executable(cpp_qt_study
         src/data/Range.h
         src/widgets/CustomLabel.cpp
         src/widgets/CustomLabel.h
+        src/widgets/ColorInput.cpp
+        src/widgets/ColorInput.h
+        src/widgets/ColorViewer.cpp
+        src/widgets/ColorViewer.h
 )
 
 target_link_libraries(cpp_qt_study

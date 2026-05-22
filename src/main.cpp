@@ -1,9 +1,7 @@
 #include <QtWidgets/QApplication>
+#include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QHBoxLayout>
-#include <QtWidgets/QTableWidget>
-#include <QtWidgets/QHeaderView>
-#include <QtWidgets/QPushButton>
-#include <QtWidgets/QInputDialog>
+#include "widgets/ColorInput.h"
 
 
 int main(int argc, char* argv[]) {
@@ -11,64 +9,47 @@ int main(int argc, char* argv[]) {
 
     QWidget w;
 
-    QHBoxLayout layout(&w);
+    QVBoxLayout layout(&w);
+    layout.setAlignment(Qt::AlignHCenter);
 
-    QTableWidget table;
-    layout.addWidget(&table, 2);
+    QHBoxLayout color_inputs;
+    layout.addLayout(&color_inputs);
 
-    constexpr int row_count = 20;
-    constexpr int column_count = 4;
+    ColorInput color_input1(QColor(255, 0, 0));
+    ColorInput color_input2(QColor(0, 0, 255));
+    color_inputs.addWidget(&color_input1);
+    color_inputs.addWidget(&color_input2);
 
-    table.setRowCount(row_count);
-    table.setColumnCount(column_count);
+    QLabel l1("混ぜたら 混ぜたら 何色 なるかな");
+    l1.setAlignment(Qt::AlignHCenter);
+    layout.addWidget(&l1);
 
-    table.setEditTriggers(QAbstractItemView::NoEditTriggers);
-    // table.setEditTriggers(QAbstractItemView::DoubleClicked);
-    // table.setEditTriggers(QAbstractItemView::AllEditTriggers);
+    ColorViewer result_color;
+    auto update_result = [&]() {
+        const QColor color1 = color_input1.color();
+        const QColor color2 = color_input2.color();
+        const auto result = QColor(
+            (color1.red() + color2.red()) / 2,
+            (color1.green() + color2.green()) / 2,
+            (color1.blue() + color2.blue()) / 2
+        );
+        qDebug() << color1.name();
+        qDebug() << color2.name();
+        qDebug() << result.name();
 
-    // table.horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-    table.horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
-    table.setHorizontalHeaderLabels({"number 1", "number 2", "number 3", "number 4"});
-
-    for (int i = 0; i < row_count; i++) {
-        for (int j = 0; j < column_count; j++) {
-            table.setItem(i, j, new QTableWidgetItem(QString::number(i + 1 + j)));
-        }
-    }
-
-    QTableWidget result_table;
-    layout.addWidget(&result_table, 1);
-
-    result_table.setRowCount(row_count);
-    result_table.setColumnCount(1);
-
-    auto update_row = [&](const int row) {
-        int sum = 0;
-        for (int j = 0; j < column_count; j++) {
-            sum += table.item(row, j)->text().toInt();
-        }
-        result_table.setItem(row, 0, new QTableWidgetItem(QString::number(sum)));
+        result_color.setColor(&result);
     };
+    update_result();
+    layout.addWidget(&result_color);
 
-    for (int i = 0; i < row_count; i++) { update_row(i); }
+    QLabel l2("STAMP!");
+    l2.setAlignment(Qt::AlignHCenter);
+    layout.addWidget(&l2);
 
-    QObject::connect(&table, &QTableWidget::itemChanged, [&](const QTableWidgetItem *i) {
-        const int updated_row = i->row();
-        update_row(updated_row);
-    });
+    QObject::connect(&color_input1, &ColorInput::colorChanged, [&] { update_result(); });
+    QObject::connect(&color_input2, &ColorInput::colorChanged, [&] { update_result(); });
 
-    QObject::connect(&table, &QTableWidget::itemDoubleClicked, [&](QTableWidgetItem *i) {
-        const int clicked_row = i->row();
-        const int clicked_column = i->column();
-
-        const QString label = QString("%1, %2 위치의 새로운 값").arg(clicked_row).arg(clicked_column);
-
-        const int new_value = QInputDialog::getInt(&table, "input", label);
-
-        i->setText(QString::number(new_value));
-    });
-
-    w.setWindowTitle("markdown editor");
+    w.setWindowTitle("Mazetara");
     w.setMinimumSize(500, 500);
     w.show();
 
