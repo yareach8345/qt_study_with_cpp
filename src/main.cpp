@@ -7,11 +7,14 @@
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QFontDialog>
 #include <QtWidgets/QFileDialog>
+#include <QtWidgets/QMessageBox>
 #include <QtWidgets/QMenuBar>
 #include <QtGui/QAction>
 
 
 int main(int argc, char* argv[]) {
+    bool is_saved_all_data = true;
+
     QApplication a(argc, argv);
 
     QMainWindow window;
@@ -50,6 +53,13 @@ int main(int argc, char* argv[]) {
     layout.addWidget(&button, 0);
 
     QObject::connect(&open_action, &QAction::triggered, [&] {
+        if (!is_saved_all_data) {
+            const auto reply = QMessageBox::question(&widget, "파일을 여시겠습니까?", "저장되지 않은 경우 내용은 복구할 수 없습니다.", QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
+            if (reply == QMessageBox::No) {
+                return;
+            }
+        }
+
         const auto file_name = QFileDialog::getOpenFileName(&widget, "Open File", "./");
 
         // 파일 선택이 취소되면 빈 문자열이 반환됨
@@ -72,6 +82,8 @@ int main(int argc, char* argv[]) {
         }
 
         file.close();
+
+        is_saved_all_data = true;
     });
 
     QObject::connect(&save_action, &QAction::triggered, [&] {
@@ -91,6 +103,8 @@ int main(int argc, char* argv[]) {
         QTextStream out(&file);
         out << edit.toPlainText();
         file.close();
+
+        is_saved_all_data = true;
     });
 
     QObject::connect(&clear_action, &QAction::triggered, [&] {
@@ -99,6 +113,7 @@ int main(int argc, char* argv[]) {
 
     QObject::connect(&edit, &QTextEdit::textChanged, [&]() {
         text_browser.setMarkdown(edit.toPlainText());
+        is_saved_all_data = false;
     });
 
     QObject::connect(&button, &QPushButton::clicked, [&]() {
