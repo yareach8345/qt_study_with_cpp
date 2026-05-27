@@ -1,133 +1,68 @@
 #include <QtWidgets/QApplication>
-#include <QtWidgets/QMainWindow>
-#include <QtWidgets/QWidget>
+#include <QtWidgets/QLCDNumber>
+#include <QtWidgets/QDial>
+#include <QtWidgets/QLabel>
 #include <QtWidgets/QVBoxLayout>
-#include <QtWidgets/QTextBrowser>
-#include <QtWidgets/QTextEdit>
-#include <QtWidgets/QPushButton>
-#include <QtWidgets/QFontDialog>
-#include <QtWidgets/QFileDialog>
-#include <QtWidgets/QMessageBox>
-#include <QtWidgets/QMenuBar>
-#include <QtGui/QAction>
 
+#define NUMBER_OF_INPUT 2
+#define MAX_DIAL_INPUT 100
+
+struct DialStruct {
+    QVBoxLayout layout;
+    QDial dial;
+    QLCDNumber lcd_number;
+};
+
+void init_dial_input(DialStruct *dial_input) {
+    dial_input->layout.addWidget(&dial_input->lcd_number);
+    dial_input->layout.addWidget(&dial_input->dial);
+    dial_input->dial.setMinimum(0);
+    dial_input->dial.setMaximum(MAX_DIAL_INPUT);
+}
 
 int main(int argc, char* argv[]) {
-    bool is_saved_all_data = true;
-
     QApplication a(argc, argv);
 
-    QMainWindow window;
-
     QWidget widget;
-    window.setCentralWidget(&widget);
 
-    QMenuBar *menubar = window.menuBar();
-    QMenu *file_menu = menubar->addMenu("&File");
+    DialStruct output_dial;
+    init_dial_input(&output_dial);
+    output_dial.dial.setDisabled(true);
+    output_dial.dial.setMaximum(MAX_DIAL_INPUT * NUMBER_OF_INPUT);
 
-    QAction open_action("&Open");
-    open_action.setShortcut(QKeySequence::Open);
-    file_menu->addAction(&open_action);
+    int inputs[NUMBER_OF_INPUT] = {};
 
-    QAction save_action("&Save");
-    save_action.setShortcut(QKeySequence::Save);
-    file_menu->addAction(&save_action);
+    auto update_output_dial = [&] {
+        int sum = 0;
+        for (int i = 0; i < NUMBER_OF_INPUT; i++) { sum += inputs[i]; }
+        output_dial.dial.setValue(sum);
+        output_dial.lcd_number.display(sum);
+    };
 
-    QMenu *edit_menu = menubar->addMenu("&Edit");
+    DialStruct input_dials[NUMBER_OF_INPUT];
 
-    QAction clear_action("&Clear");
-    edit_menu->addAction(&clear_action);
+    QHBoxLayout input_layout;
+
+    for (int i = 0; i < NUMBER_OF_INPUT; i++) {
+        DialStruct *input_dial = &input_dials[i];
+        init_dial_input(input_dial);
+
+        input_layout.addLayout(&input_dial->layout);
+        QObject::connect(&input_dial->dial, &QDial::valueChanged, [&inputs, &update_output_dial, input_dial, i](const auto new_value) {
+            input_dial->lcd_number.display(new_value);
+            inputs[i] = new_value;
+            update_output_dial();
+        });
+    }
 
     QVBoxLayout layout(&widget);
-    layout.setAlignment(Qt::AlignHCenter);
+    layout.addWidget(new QLabel("Inputs"));
+    layout.addLayout(&input_layout);
+    layout.addWidget(new QLabel("Output"));
+    layout.addLayout(&output_dial.layout);
 
-    QTextEdit edit;
-    edit.setPlaceholderText("Input text");
-    layout.addWidget(&edit, 1);
-
-    QTextBrowser text_browser;
-    text_browser.setAlignment(Qt::AlignHCenter);
-    layout.addWidget(&text_browser, 1);
-
-    QPushButton button("Select font");
-    layout.addWidget(&button, 0);
-
-    QObject::connect(&open_action, &QAction::triggered, [&] {
-        if (!is_saved_all_data) {
-            const auto reply = QMessageBox::question(&widget, "파일을 여시겠습니까?", "저장되지 않은 경우 내용은 복구할 수 없습니다.", QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
-            if (reply == QMessageBox::No) {
-                return;
-            }
-        }
-
-        const auto file_name = QFileDialog::getOpenFileName(&widget, "Open File", "./");
-
-        // 파일 선택이 취소되면 빈 문자열이 반환됨
-        if (file_name.isEmpty()) {
-            qDebug() << "file not selected";
-            return;
-        }
-
-        QFile file(file_name);
-        if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-            qDebug() << file.errorString();
-            throw std::runtime_error("Could not open file!");
-        }
-
-        QTextStream in(&file);
-        edit.clear();
-        while (!in.atEnd()) {
-            QString line = in.readLine();
-            edit.append(line);
-        }
-
-        file.close();
-
-        is_saved_all_data = true;
-    });
-
-    QObject::connect(&save_action, &QAction::triggered, [&] {
-        const auto file_name = QFileDialog::getSaveFileName(&widget, "Save File", "./");
-
-        // 파일 선택이 취소되면 빈 문자열이 반환됨
-        if (file_name.isEmpty()) {
-            qDebug() << "file not selected";
-            return;
-        }
-
-        QFile file(file_name);
-        if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-            qDebug() << file.errorString();
-            throw std::runtime_error("Could not open file!");
-        }
-        QTextStream out(&file);
-        out << edit.toPlainText();
-        file.close();
-
-        is_saved_all_data = true;
-    });
-
-    QObject::connect(&clear_action, &QAction::triggered, [&] {
-        edit.clear();
-    });
-
-    QObject::connect(&edit, &QTextEdit::textChanged, [&]() {
-        text_browser.setMarkdown(edit.toPlainText());
-        is_saved_all_data = false;
-    });
-
-    QObject::connect(&button, &QPushButton::clicked, [&]() {
-        bool ok_flag;
-        const auto selected_font = QFontDialog::getFont(&ok_flag, &widget);
-
-        if (ok_flag == false) { return; }
-
-        text_browser.setFont(selected_font);
-    });
-
-    window.setWindowTitle("font");
-    window.setMinimumSize(500, 500);
-    window.show();
+    widget.setWindowTitle("font");
+    widget.show();
 
     return QApplication::exec();
 }
