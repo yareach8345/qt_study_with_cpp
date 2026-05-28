@@ -1,7 +1,9 @@
+#include <QPushButton>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QLCDNumber>
 #include <QtWidgets/QDial>
 #include <QtWidgets/QLabel>
+#include <QtWidgets/QPushButton>
 #include <QtWidgets/QVBoxLayout>
 
 #define NUMBER_OF_INPUT 2
@@ -55,11 +57,19 @@ int main(int argc, char* argv[]) {
         });
     }
 
+    QPushButton reset_button("reset");
+    QObject::connect(&reset_button, &QPushButton::clicked, [&] {
+        for (DialStruct& dial_input : input_dials) {
+            dial_input.dial.setValue(0);
+        }
+    });
+
     QVBoxLayout layout(&widget);
     layout.addWidget(new QLabel("Inputs"));
     layout.addLayout(&input_layout);
     layout.addWidget(new QLabel("Output"));
     layout.addLayout(&output_dial.layout);
+    layout.addWidget(&reset_button);
 
     widget.setWindowTitle("font");
     widget.show();
