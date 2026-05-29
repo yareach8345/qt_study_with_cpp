@@ -1,78 +1,42 @@
-#include <QPushButton>
 #include <QtWidgets/QApplication>
-#include <QtWidgets/QLCDNumber>
 #include <QtWidgets/QDial>
-#include <QtWidgets/QLabel>
-#include <QtWidgets/QPushButton>
-#include <QtWidgets/QVBoxLayout>
+#include <QKeyEvent>
 
-#define NUMBER_OF_INPUT 2
-#define MAX_DIAL_INPUT 100
+class MyApp : public QWidget {
+private:
+    void initUi() {
+        setWindowTitle("Reimplementing event handler");
+        setGeometry(300, 300, 300, 200);
+        show();
+    }
 
-struct DialStruct {
-    QVBoxLayout layout;
-    QDial dial;
-    QLCDNumber lcd_number;
+protected:
+    void keyPressEvent(QKeyEvent* event) override {
+        switch (event->key()) {
+            case Qt::Key_Escape:
+                QApplication::quit();
+                break;
+            case Qt::Key_F:
+                showFullScreen();
+                break;
+            case Qt::Key_N:
+                showNormal();
+                break;
+            default:
+                break;
+        }
+    }
+
+public:
+    MyApp() : QWidget() {
+        initUi();
+    }
 };
-
-void init_dial_input(DialStruct *dial_input) {
-    dial_input->layout.addWidget(&dial_input->lcd_number);
-    dial_input->layout.addWidget(&dial_input->dial);
-    dial_input->dial.setMinimum(0);
-    dial_input->dial.setMaximum(MAX_DIAL_INPUT);
-}
 
 int main(int argc, char* argv[]) {
     QApplication a(argc, argv);
 
-    QWidget widget;
-
-    DialStruct output_dial;
-    init_dial_input(&output_dial);
-    output_dial.dial.setDisabled(true);
-    output_dial.dial.setMaximum(MAX_DIAL_INPUT * NUMBER_OF_INPUT);
-
-    int inputs[NUMBER_OF_INPUT] = {};
-
-    auto update_output_dial = [&] {
-        int sum = 0;
-        for (int i = 0; i < NUMBER_OF_INPUT; i++) { sum += inputs[i]; }
-        output_dial.dial.setValue(sum);
-        output_dial.lcd_number.display(sum);
-    };
-
-    DialStruct input_dials[NUMBER_OF_INPUT];
-
-    QHBoxLayout input_layout;
-
-    for (int i = 0; i < NUMBER_OF_INPUT; i++) {
-        DialStruct *input_dial = &input_dials[i];
-        init_dial_input(input_dial);
-
-        input_layout.addLayout(&input_dial->layout);
-        QObject::connect(&input_dial->dial, &QDial::valueChanged, [&inputs, &update_output_dial, input_dial, i](const auto new_value) {
-            input_dial->lcd_number.display(new_value);
-            inputs[i] = new_value;
-            update_output_dial();
-        });
-    }
-
-    QPushButton reset_button("reset");
-    QObject::connect(&reset_button, &QPushButton::clicked, [&] {
-        for (DialStruct& dial_input : input_dials) {
-            dial_input.dial.setValue(0);
-        }
-    });
-
-    QVBoxLayout layout(&widget);
-    layout.addWidget(new QLabel("Inputs"));
-    layout.addLayout(&input_layout);
-    layout.addWidget(new QLabel("Output"));
-    layout.addLayout(&output_dial.layout);
-    layout.addWidget(&reset_button);
-
-    widget.setWindowTitle("font");
-    widget.show();
+    MyApp app;
 
     return QApplication::exec();
 }
