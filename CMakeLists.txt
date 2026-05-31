@@ -27,6 +27,8 @@ add_executable(cpp_qt_study
         src/widgets/ColorInput.h
         src/widgets/ColorViewer.cpp
         src/widgets/ColorViewer.h
+        src/MyApp.cpp
+        src/MyApp.h
 )
 
 target_link_libraries(cpp_qt_study
