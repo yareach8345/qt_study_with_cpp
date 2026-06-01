@@ -6,6 +6,7 @@
 #define CPP_QT_STUDY_POINT_H
 
 #include <QPoint>
+#include <QColor>
 
 struct PointInfo {
     int size;
