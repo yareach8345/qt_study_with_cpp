@@ -29,6 +29,17 @@ add_executable(cpp_qt_study
         src/widgets/ColorViewer.h
         src/MyApp.cpp
         src/MyApp.h
+        src/print/PrintInfoStatusBar.cpp
+        src/print/PrintInfoStatusBar.h
+        src/print/PaintingArea.cpp
+        src/print/PaintingArea.h
+        src/print/PointInfo.h
+        src/print/ColorOption.cpp
+        src/print/ColorOption.h
+        src/print/ColorSelector.cpp
+        src/print/ColorSelector.h
+        src/print/BrushSizeLabel.cpp
+        src/print/BrushSizeLabel.h
 )
 
 target_link_libraries(cpp_qt_study
