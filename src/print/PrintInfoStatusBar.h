@@ -15,15 +15,23 @@ class PrintInfoStatusBar: public QStatusBar {
 private:
     static QString numberOfPointsInfoTemplate;
 
+    static QString fillInfoTemplate;
+
     int numberOfPoints;
+
+    bool fill;
 
     QLabel numberOfPointsLabel;
 
     BrushSizeLabel brushSizeLabel;
 
+    QLabel fillLabel;
+
     void updateNumberOfPointsLabel();
+
+    void updateFillLabel();
 public:
-    explicit PrintInfoStatusBar(int numberOfPoints = 0, int brushSize = 1);
+    explicit PrintInfoStatusBar(int numberOfPoints = 0, int brushSize = 1, bool fill = false);
 
     [[nodiscard]] int getNumberOfPoints() const;
 
@@ -32,6 +40,10 @@ public:
     [[nodiscard]] int getBrushSize() const;
 
     void setBrushSize(int brushSize);
+
+    [[nodiscard]] bool getFill() const;
+
+    void setFill(bool fill);
 
     void reset();
 

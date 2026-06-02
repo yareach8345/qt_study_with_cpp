@@ -6,12 +6,13 @@
 
 QString PrintInfoStatusBar::numberOfPointsInfoTemplate("Number of Points: %1");
 
+QString PrintInfoStatusBar::fillInfoTemplate("fill : %1");
 
 void PrintInfoStatusBar::updateNumberOfPointsLabel() {
     this->numberOfPointsLabel.setText(numberOfPointsInfoTemplate.arg(this->numberOfPoints));
 }
 
-PrintInfoStatusBar::PrintInfoStatusBar(const int numberOfPoints, const int brushSize): numberOfPoints(numberOfPoints), brushSizeLabel(brushSize) {
+PrintInfoStatusBar::PrintInfoStatusBar(const int numberOfPoints, const int brushSize, const bool fill): numberOfPoints(numberOfPoints), brushSizeLabel(brushSize), fill(fill) {
     addWidget(&numberOfPointsLabel);
     updateNumberOfPointsLabel();
 
@@ -19,6 +20,9 @@ PrintInfoStatusBar::PrintInfoStatusBar(const int numberOfPoints, const int brush
     connect(&brushSizeLabel, &BrushSizeLabel::sizeChanged, [this](const int newSize) {
         emit brushSizeChanged(newSize);
     });
+
+    addWidget(&fillLabel);
+    updateFillLabel();
 }
 
 int PrintInfoStatusBar::getNumberOfPoints() const {
@@ -36,6 +40,19 @@ int PrintInfoStatusBar::getBrushSize() const {
 
 void PrintInfoStatusBar::setBrushSize(const int brushSize) {
     this->brushSizeLabel.setSize(brushSize);
+}
+
+bool PrintInfoStatusBar::getFill() const {
+    return this->fill;
+}
+
+void PrintInfoStatusBar::setFill(const bool fill) {
+    this->fill = fill;
+    updateFillLabel();
+}
+
+void PrintInfoStatusBar::updateFillLabel() {
+    fillLabel.setText(fillInfoTemplate.arg(this->getFill() ? "true" : "false"));
 }
 
 void PrintInfoStatusBar::reset() {

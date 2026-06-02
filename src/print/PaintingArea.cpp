@@ -11,14 +11,15 @@ PaintingArea::PaintingArea(): brushSize(1), release(false) {
 }
 
 void PaintingArea::drawLine() {
-    const LineInfo lineInfo = {
+    const QRect rect(this->releaseStartPoint, this->releaseEndPoint);
+    const RectInfo lineInfo = {
         .size = brushSize,
-        .start = this->releaseStartPoint,
-        .end = this->releaseEndPoint,
-        .color = color
+        .rect = rect,
+        .color = color,
+        .fill = this->fill,
     };
     qDebug() << "[" << this->releaseStartPoint << ", " << this->releaseEndPoint << "]";
-    lines.push_back(lineInfo);
+    rects.push_back(lineInfo);
     update();
     emit drawn(lineInfo);
 }
@@ -26,31 +27,37 @@ void PaintingArea::drawLine() {
 void PaintingArea::paintEvent(QPaintEvent *event) {
     QPainter painter(this);
     painter.setBrush(QColor(0, 0, 0));
-    for (const LineInfo line: lines) {
+    for (const RectInfo rect: rects) {
         QPen pen;
-        pen.setColor(line.color);
-        pen.setWidth(line.size);
+        pen.setColor(rect.color);
+        pen.setWidth(rect.size);
         painter.setPen(pen);
-        painter.drawLine(line.start, line.end);
+        painter.setBrush(rect.fill ? QBrush(rect.color) : Qt::NoBrush);
+        painter.drawRect(rect.rect);
     }
     if (release == true) {
         QPen pen;
         pen.setColor(color);
         pen.setWidth(brushSize);
         painter.setPen(pen);
-        painter.drawLine(this->releaseStartPoint, this->releaseEndPoint);
+        painter.setBrush(this->fill ? QBrush(this->color) : Qt::NoBrush);
+        painter.drawRect(QRect(this->releaseStartPoint, this->releaseEndPoint));
     }
     painter.end();
 }
 
 void PaintingArea::mousePressEvent(QMouseEvent *event) {
-    if (event->button() != Qt::MouseButton::LeftButton) { return; }
+    if (event->button() == Qt::MouseButton::LeftButton) {
+        this->release = true;
 
-    this->release = true;
-
-    this->releaseStartPoint = event->pos();
-    this->releaseEndPoint = event->pos();
-    this->update();
+        this->releaseStartPoint = event->pos();
+        this->releaseEndPoint = event->pos();
+        this->update();
+        return;
+    } else if (event->button() == Qt::MouseButton::RightButton) {
+        this->fill = !this->fill;
+        emit fillChanged(this->fill);
+    }
 }
 
 void PaintingArea::mouseMoveEvent(QMouseEvent *event) {
@@ -61,11 +68,11 @@ void PaintingArea::mouseMoveEvent(QMouseEvent *event) {
 }
 
 void PaintingArea::mouseReleaseEvent(QMouseEvent *event) {
-    if (event->button() != Qt::MouseButton::LeftButton) { return; }
+    if (event->button() == Qt::MouseButton::LeftButton) {
+        this->release = false;
 
-    this->release = false;
-
-    drawLine();
+        drawLine();
+    }
 }
 
 void PaintingArea::wheelEvent(QWheelEvent *event) {
@@ -89,8 +96,8 @@ void PaintingArea::wheelEvent(QWheelEvent *event) {
     qDebug() << "wheet event : " << (direction ? "up" : "down") << "(" << brushSize << ")";
 }
 
-std::vector<LineInfo> PaintingArea::getLines() {
-    return lines;
+std::vector<RectInfo> PaintingArea::getRects() {
+    return rects;
 }
 
 QColor PaintingArea::getColor() const {
@@ -102,7 +109,7 @@ void PaintingArea::setColor(const QColor newColor) {
 }
 
 unsigned long PaintingArea::getNumberOfPoints() const {
-    return lines.size();
+    return rects.size();
 }
 
 void PaintingArea::setBrushSize(const int newBrushSize) {

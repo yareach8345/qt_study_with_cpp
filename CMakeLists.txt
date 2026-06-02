@@ -41,6 +41,7 @@ add_executable(cpp_qt_study
         src/print/BrushSizeLabel.cpp
         src/print/BrushSizeLabel.h
         src/print/LineInfo.h
+        src/print/RectInfo.h
 )
 
 target_link_libraries(cpp_qt_study

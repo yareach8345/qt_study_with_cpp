@@ -34,6 +34,10 @@ int main(int argc, char* argv[]) {
         printInfoStatusBar.setBrushSize(newBrushSize);
     });
 
+    QObject::connect(&paintingArea, &PaintingArea::fillChanged, [&](const bool newFill) {
+        printInfoStatusBar.setFill(newFill);
+    });
+
     QObject::connect(&printInfoStatusBar, &PrintInfoStatusBar::brushSizeChanged, [&](const int newBrushSize) {
         paintingArea.setBrushSize(newBrushSize);
     });

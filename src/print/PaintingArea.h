@@ -7,14 +7,16 @@
 
 #include <QtWidgets/QWidget>
 #include <vector>
-#include "LineInfo.h"
+#include "RectInfo.h"
 
 class PaintingArea: public QWidget {
     Q_OBJECT
 private:
-    std::vector<LineInfo> lines;
+    std::vector<RectInfo> rects;
 
     int brushSize;
+
+    bool fill;
 
     QColor color;
 
@@ -36,7 +38,7 @@ protected:
 public:
     explicit PaintingArea();
 
-    std::vector<LineInfo> getLines();
+    std::vector<RectInfo> getRects();
 
     [[nodiscard]] QColor getColor() const;
 
@@ -48,9 +50,11 @@ public:
 
     [[nodiscard]] int getBrushSize() const;
 signals:
-    void drawn(LineInfo point);
+    void drawn(RectInfo rect);
 
     void brushSizeChanged(int brushSize);
+
+    void fillChanged(bool fill);
 };
 
 
