@@ -7,20 +7,22 @@
 
 #include <QtWidgets/QWidget>
 #include <vector>
-#include "PointInfo.h"
+#include "LineInfo.h"
 
 class PaintingArea: public QWidget {
     Q_OBJECT
 private:
-    std::vector<PointInfo> points;
+    std::vector<LineInfo> lines;
 
     int brushSize;
 
     QColor color;
 
     bool release;
+    QPoint releaseStartPoint;
+    QPoint releaseEndPoint;
 
-    void drawPoint(QPoint pos);
+    void drawLine();
 protected:
     void mousePressEvent(QMouseEvent* event) override;
 
@@ -34,7 +36,7 @@ protected:
 public:
     explicit PaintingArea();
 
-    std::vector<PointInfo> getPoints();
+    std::vector<LineInfo> getLines();
 
     [[nodiscard]] QColor getColor() const;
 
@@ -46,7 +48,7 @@ public:
 
     [[nodiscard]] int getBrushSize() const;
 signals:
-    void drawn(PointInfo point);
+    void drawn(LineInfo point);
 
     void brushSizeChanged(int brushSize);
 };
