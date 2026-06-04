@@ -33,15 +33,20 @@ void PaintingArea::paintEvent(QPaintEvent *event) {
         pen.setWidth(rect.size);
         painter.setPen(pen);
         painter.setBrush(rect.fill ? QBrush(rect.color) : Qt::NoBrush);
-        painter.drawRect(rect.rect);
+        painter.drawArc(rect.rect, 0, 360 * 16);
     }
     if (release == true) {
         QPen pen;
+        painter.setBrush(this->fill ? QBrush(this->color) : Qt::NoBrush);
+        pen.setStyle(Qt::PenStyle::DashLine);
+        pen.setColor(Qt::GlobalColor::gray);
+        painter.setPen(pen);
+        painter.drawRect(QRect(this->releaseStartPoint, this->releaseEndPoint));
+        pen.setStyle(Qt::PenStyle::SolidLine);
         pen.setColor(color);
         pen.setWidth(brushSize);
         painter.setPen(pen);
-        painter.setBrush(this->fill ? QBrush(this->color) : Qt::NoBrush);
-        painter.drawRect(QRect(this->releaseStartPoint, this->releaseEndPoint));
+        painter.drawArc(QRect(this->releaseStartPoint, this->releaseEndPoint), 0, 360 * 16);
     }
     painter.end();
 }
