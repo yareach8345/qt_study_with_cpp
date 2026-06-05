@@ -7,12 +7,12 @@
 
 #include <QtWidgets/QWidget>
 #include <vector>
-#include "RectInfo.h"
+#include "CircleInfo.h"
 
 class PaintingArea: public QWidget {
     Q_OBJECT
 private:
-    std::vector<RectInfo> rects;
+    std::vector<CircleInfo> circles;
 
     int brushSize;
 
@@ -21,8 +21,9 @@ private:
     QColor color;
 
     bool release;
-    QPoint releaseStartPoint;
-    QPoint releaseEndPoint;
+    QPoint center;
+    QPoint mouse_pos;
+    int r;
 
     void drawLine();
 protected:
@@ -38,7 +39,7 @@ protected:
 public:
     explicit PaintingArea();
 
-    std::vector<RectInfo> getRects();
+    std::vector<CircleInfo> getRects();
 
     [[nodiscard]] QColor getColor() const;
 
@@ -50,7 +51,7 @@ public:
 
     [[nodiscard]] int getBrushSize() const;
 signals:
-    void drawn(RectInfo rect);
+    void drawn(CircleInfo circle);
 
     void brushSizeChanged(int brushSize);
 

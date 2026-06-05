@@ -11,29 +11,31 @@ PaintingArea::PaintingArea(): brushSize(1), release(false) {
 }
 
 void PaintingArea::drawLine() {
-    const QRect rect(this->releaseStartPoint, this->releaseEndPoint);
-    const RectInfo lineInfo = {
+
+    const CircleInfo circle_info {
         .size = brushSize,
-        .rect = rect,
-        .color = color,
-        .fill = this->fill,
+        .center = this->center,
+        .r = this->r,
+        .color = this->color,
+        .fill = this->fill
     };
-    qDebug() << "[" << this->releaseStartPoint << ", " << this->releaseEndPoint << "]";
-    rects.push_back(lineInfo);
+
+    qDebug() << "[" << circle_info.center << ", " << circle_info.r << "]";
+    circles.push_back(circle_info);
     update();
-    emit drawn(lineInfo);
+    emit drawn(circle_info);
 }
 
 void PaintingArea::paintEvent(QPaintEvent *event) {
     QPainter painter(this);
     painter.setBrush(QColor(0, 0, 0));
-    for (const RectInfo rect: rects) {
+    for (const CircleInfo circle: circles) {
         QPen pen;
-        pen.setColor(rect.color);
-        pen.setWidth(rect.size);
+        pen.setColor(circle.color);
+        pen.setWidth(circle.size);
         painter.setPen(pen);
-        painter.setBrush(rect.fill ? QBrush(rect.color) : Qt::NoBrush);
-        painter.drawArc(rect.rect, 0, 360 * 16);
+        painter.setBrush(circle.fill ? QBrush(circle.color) : Qt::NoBrush);
+        painter.drawArc(circle.center.x() - circle.r, circle.center.y() - circle.r, circle.r * 2, circle.r * 2, 0, 360 * 16);
     }
     if (release == true) {
         QPen pen;
@@ -41,12 +43,12 @@ void PaintingArea::paintEvent(QPaintEvent *event) {
         pen.setStyle(Qt::PenStyle::DashLine);
         pen.setColor(Qt::GlobalColor::gray);
         painter.setPen(pen);
-        painter.drawRect(QRect(this->releaseStartPoint, this->releaseEndPoint));
+        painter.drawLine(center, mouse_pos);
         pen.setStyle(Qt::PenStyle::SolidLine);
         pen.setColor(color);
         pen.setWidth(brushSize);
         painter.setPen(pen);
-        painter.drawArc(QRect(this->releaseStartPoint, this->releaseEndPoint), 0, 360 * 16);
+        painter.drawArc(center.x() - r, center.y() - r, r * 2, r * 2, 0, 360 * 16);
     }
     painter.end();
 }
@@ -55,8 +57,8 @@ void PaintingArea::mousePressEvent(QMouseEvent *event) {
     if (event->button() == Qt::MouseButton::LeftButton) {
         this->release = true;
 
-        this->releaseStartPoint = event->pos();
-        this->releaseEndPoint = event->pos();
+        this->r = 0;
+        this->center = event->pos();
         this->update();
         return;
     } else if (event->button() == Qt::MouseButton::RightButton) {
@@ -68,7 +70,10 @@ void PaintingArea::mousePressEvent(QMouseEvent *event) {
 void PaintingArea::mouseMoveEvent(QMouseEvent *event) {
     if (release == false) { return; }
 
-    this->releaseEndPoint = event->pos();
+    mouse_pos = event->pos();
+    const auto dx = mouse_pos.x() - this->center.x();
+    const auto dy = mouse_pos.y() - this->center.y();
+    this->r = sqrt(dx * dx + dy * dy);
     this->update();
 }
 
@@ -101,8 +106,8 @@ void PaintingArea::wheelEvent(QWheelEvent *event) {
     qDebug() << "wheet event : " << (direction ? "up" : "down") << "(" << brushSize << ")";
 }
 
-std::vector<RectInfo> PaintingArea::getRects() {
-    return rects;
+std::vector<CircleInfo> PaintingArea::getRects() {
+    return circles;
 }
 
 QColor PaintingArea::getColor() const {
@@ -114,7 +119,7 @@ void PaintingArea::setColor(const QColor newColor) {
 }
 
 unsigned long PaintingArea::getNumberOfPoints() const {
-    return rects.size();
+    return circles.size();
 }
 
 void PaintingArea::setBrushSize(const int newBrushSize) {
